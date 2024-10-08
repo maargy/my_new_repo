@@ -1,18 +1,18 @@
 import streamlit as st
 import pandas as pd
-import plotly_express as px
+import plotly.express as px
 import plotly.graph_objects as go
 
 df = pd.read_csv('vehicles_us.csv')
 df['manufacturer'] = df['model'].apply(lambda x: x.split()[0])
 
-st.header('Data viewer')
+st.header('Data Viewer')
 show_manuf_1k_ads = st.checkbox('Include manufacturers with less than 1000 ads')
 if not show_manuf_1k_ads:
     df = df.groupby('manufacturer').filter(lambda x: len(x) > 1000)
 
 st.dataframe(df)
-st.header('Vehicle types by manufacturer')
+st.header('Vehicle Types by Manufacturer')
 st.write(px.histogram(df, x='manufacturer', color='type'))
 st.header('Histogram of `condition` vs `model_year`')
 
@@ -31,7 +31,7 @@ st.write(px.histogram(df, x='model_year', color='condition'))
 # a lot more concise!
 # -------------------------------------------------------
 
-st.header('Compare price distribution between manufacturers')
+st.header('Compare Price Distribution between Manufacturers')
 manufac_list = sorted(df['manufacturer'].unique())
 manufacturer_1 = st.selectbox('Select manufacturer 1',
                               manufac_list, index=manufac_list.index('chevrolet'))
