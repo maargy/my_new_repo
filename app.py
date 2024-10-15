@@ -2,52 +2,33 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import altair as alt
 
 df = pd.read_csv('vehicles_us.csv')
-df['manufacturer'] = df['model'].apply(lambda x: x.split()[0])
 
-st.header('Data Viewer')
-show_manuf_1k_ads = st.checkbox('Include manufacturers with less than 1000 ads')
-if not show_manuf_1k_ads:
-    df = df.groupby('manufacturer').filter(lambda x: len(x) > 1000)
+#Histogram of 'Average Price by Model Year'
+avg_price_year = df.groupby('model_year')['price'].mean().reset_index()
+avg_price_year = avg_price_year[avg_price_year['model_year'] >= 1908]  # to not include 0
 
-st.dataframe(df)
-st.header('Vehicle Types by Manufacturer')
-st.write(px.histogram(df, x='manufacturer', color='type'))
-st.header('Histogram of `condition` vs `model_year`')
+hist = px.histogram(avg_price_year, x='model_year', y='price', title='Average Price by Model Year')
+hist.update_xaxes(title='Model Year')
+hist.update_yaxes(title='Average Price')
 
-# -------------------------------------------------------
-# histograms in plotly:
-# fig = go.Figure()
-# fig.add_trace(go.Histogram(x=df[df['condition']=='good']['model_year'], name='good'))
-# fig.add_trace(go.Histogram(x=df[df['condition']=='excellent']['model_year'], name='excellent'))
-# fig.update_layout(barmode='stack')
-# st.write(fig)
-# works, but too many lines of code
-# -------------------------------------------------------
+st.plotly_chart(hist)
 
-# histograms in plotly_express:
-st.write(px.histogram(df, x='model_year', color='condition'))
-# a lot more concise!
-# -------------------------------------------------------
+#Scatterplot of Price vs. Odometer
+scat = px.scatter(df, x='odometer', y='price', title='Price vs. Odometer', 
+                 labels={'odometer': 'Odometer (miles)', 'price': 'Price'})
+scat.update_traces(marker=dict(size=5, opacity=0.5))
 
-st.header('Compare Price Distribution between Manufacturers')
-manufac_list = sorted(df['manufacturer'].unique())
-manufacturer_1 = st.selectbox('Select manufacturer 1',
-                              manufac_list, index=manufac_list.index('chevrolet'))
+st.plotly_chart(scat)
 
-manufacturer_2 = st.selectbox('Select manufacturer 2',
-                              manufac_list, index=manufac_list.index('hyundai'))
-mask_filter = (df['manufacturer'] == manufacturer_1) | (df['manufacturer'] == manufacturer_2)
-df_filtered = df[mask_filter]
-normalize = st.checkbox('Normalize histogram', value=True)
-if normalize:
-    histnorm = 'percent'
+#Checkbox Requirement
+st.title('Checkbox Option')
+
+show_message = st.checkbox("Choose to see one visualization")
+
+if show_message:
+    st.write("Only see one Visualization")
 else:
-    histnorm = None
-st.write(px.histogram(df_filtered,
-                      x='price',
-                      nbins=30,
-                      color='manufacturer',
-                      histnorm=histnorm,
-                      barmode='overlay'))
+    st.write("See both the Histogram and Scatterplot")
