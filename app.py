@@ -6,6 +6,8 @@ import altair as alt
 
 df = pd.read_csv('vehicles_us.csv')
 
+st.title('Data Analysis with Car Prices: Exploring Trends and Insights')
+
 #Histogram of 'Average Price by Model Year'
 avg_price_year = df.groupby('model_year')['price'].mean().reset_index()
 avg_price_year = avg_price_year[avg_price_year['model_year'] >= 1908]  # to not include 0
@@ -16,19 +18,14 @@ hist.update_yaxes(title='Average Price')
 
 st.plotly_chart(hist)
 
+# Creating a checkbox
+show_graph = st.checkbox("Show Price vs. Odometer Graph")
+
 #Scatterplot of Price vs. Odometer
-scat = px.scatter(df, x='odometer', y='price', title='Price vs. Odometer', 
-                 labels={'odometer': 'Odometer (miles)', 'price': 'Price'})
-scat.update_traces(marker=dict(size=5, opacity=0.5))
+if show_graph:
+    scat = px.scatter(df, x='odometer', y='price', title='Price vs. Odometer', 
+                     labels={'odometer': 'Odometer (miles)', 'price': 'Price'})
+    scat.update_traces(marker=dict(size=5, opacity=0.5))
 
 st.plotly_chart(scat)
 
-#Checkbox Requirement
-st.title('Checkbox Option')
-
-show_message = st.checkbox("Choose to see one visualization")
-
-if show_message:
-    st.write("Only see one Visualization")
-else:
-    st.write("See both the Histogram and Scatterplot")
