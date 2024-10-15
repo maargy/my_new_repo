@@ -27,5 +27,5 @@ if show_graph:
                      labels={'odometer': 'Odometer (miles)', 'price': 'Price'})
     scat.update_traces(marker=dict(size=5, opacity=0.5))
 
-st.plotly_chart(scat)
+    st.plotly_chart(scat)
 
